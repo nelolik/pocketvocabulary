@@ -4,26 +4,40 @@ import android.content.Context;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.nelolik.pocketvocabulary.Utility.TranslationsDBContract;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class WordsListAdapter extends RecyclerView.Adapter<WordsListAdapter.WordViewHolder> {
 
-    private List<String> mCursor;
+    private Cursor mCursor;
     private Context mContext;
+    private OnButtonClickListener mListener;
 
-    public WordsListAdapter(Context context, Cursor cursor) {
+    WordsListAdapter(Context context, Cursor cursor, OnButtonClickListener listener) {
         mContext = context;
 //        mCursor = cursor;
-        mCursor = new ArrayList<>(10);
-        for (int i = 0; i < 10; i++) mCursor.add(String.valueOf(i));
+        mCursor = cursor;
+        mListener = listener;
+    }
+
+    void setCursor(Cursor cursor) {
+        if (mCursor != null) {
+            mCursor.close();
+        }
+        mCursor = cursor;
     }
 
     @NonNull
@@ -40,30 +54,35 @@ public class WordsListAdapter extends RecyclerView.Adapter<WordsListAdapter.Word
         if (i > 0) {
             wordViewHolder.mOriginWord.setVisibility(View.VISIBLE);
             wordViewHolder.mTranslation.setVisibility(View.VISIBLE);
-            wordViewHolder.mOriginWord.setText("word " + i);
-            wordViewHolder.mTranslation.setText("translations");
             wordViewHolder.mTranslationInput.setVisibility(View.GONE);
             wordViewHolder.mNewWordInput.setVisibility(View.GONE);
             wordViewHolder.mButtonAdd.setVisibility(View.GONE);
+            if (mCursor.moveToPosition(i - 1)) {
+                int indxWord = mCursor.getColumnIndex(TranslationsDBContract.COLUMN_ORIGIN);
+                int indxTrans = mCursor.getColumnIndex(TranslationsDBContract.COLUMN_TRANSLATION);
+                String word = mCursor.getString(indxWord);
+                String translation = mCursor.getString(indxTrans);
+                wordViewHolder.mOriginWord.setText(word);
+                wordViewHolder.mTranslation.setText(translation);
+            }
         } else {
             wordViewHolder.mOriginWord.setVisibility(View.GONE);
             wordViewHolder.mTranslation.setVisibility(View.GONE);
             wordViewHolder.mTranslationInput.setVisibility(View.VISIBLE);
             wordViewHolder.mNewWordInput.setVisibility(View.VISIBLE);
             wordViewHolder.mButtonAdd.setVisibility(View.VISIBLE);
-
         }
     }
 
     @Override
     public int getItemCount() {
         if (mCursor != null) {
-            return mCursor.size();//getCount();
+            return mCursor.getCount() + 1;
         }
-        return 0;
+        return 1;
     }
 
-    public class WordViewHolder extends RecyclerView.ViewHolder {
+    class WordViewHolder extends RecyclerView.ViewHolder {
 
         EditText mNewWordInput;
         EditText mTranslationInput;
@@ -71,17 +90,43 @@ public class WordsListAdapter extends RecyclerView.Adapter<WordsListAdapter.Word
         TextView mTranslation;
         Button mButtonAdd;
 
-        public WordViewHolder(@NonNull View itemView) {
-            super(itemView);
-        }
-
-        public WordViewHolder(@NonNull View itemView, boolean isFirst) {
+        WordViewHolder(@NonNull View itemView, boolean isFirst) {
             super(itemView);
             mNewWordInput = itemView.findViewById(R.id.et_origin_word_input);
             mTranslationInput = itemView.findViewById(R.id.et_translation_input);
             mOriginWord = itemView.findViewById(R.id.tv_origin_word);
             mTranslation = itemView.findViewById(R.id.tv_translation);
             mButtonAdd = itemView.findViewById(R.id.btn_add);
+            mButtonAdd.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mListener.onButtonAddClick(mNewWordInput.getText().toString(),
+                            mTranslationInput.getText().toString());
+                    mNewWordInput.setText("");
+                    mTranslationInput.setText("");
+                }
+            });
+            mNewWordInput.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    mListener.onOriginChanged(s.toString());
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+
+                }
+            });
         }
+    }
+
+    public interface OnButtonClickListener {
+        void onButtonAddClick (String origin, String translation);
+        void onOriginChanged(String new_origin);
     }
 }

@@ -14,7 +14,7 @@ import android.widget.FrameLayout;
 
 import com.nelolik.pocketvocabulary.dummy.DummyContent;
 
-public class MainActivity extends AppCompatActivity implements MainListFragment.OnListFragmentInteractionListener {
+public class MainActivity extends AppCompatActivity {
 
     private FrameLayout mFragmentLayout;
 
@@ -53,10 +53,5 @@ public class MainActivity extends AppCompatActivity implements MainListFragment.
             return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onListFragmentInteraction(DummyContent.DummyItem item) {
-
     }
 }
