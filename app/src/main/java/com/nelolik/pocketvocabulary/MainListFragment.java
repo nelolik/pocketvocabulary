@@ -10,6 +10,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -106,6 +108,22 @@ public class MainListFragment extends Fragment
                 }
             }
         });
+    }
+
+    @Override
+    public void onButtonTranslate(String text) {
+        FragmentManager fragmentManager = getFragmentManager();
+        if (fragmentManager == null) {
+            return;
+        }
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        Bundle bundle = new Bundle();
+        bundle.putString("text", text);
+        YandexTranslateFragment yandexTranslateFragment = new YandexTranslateFragment();
+        yandexTranslateFragment.setArguments(bundle);
+        fragmentTransaction.replace(R.id.main_fragment_container, yandexTranslateFragment);
+        fragmentTransaction.addToBackStack(MainActivity.BACKSTACK_TAG);
+        fragmentTransaction.commit();
     }
 
     @Override

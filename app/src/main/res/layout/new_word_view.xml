@@ -20,11 +20,21 @@
         app:layout_constraintLeft_toLeftOf="parent"/>
 
     <Button
+        android:id="@+id/btn_translate"
+        android:text="translate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@id/et_origin_word_input"
+        app:layout_constraintStart_toEndOf="@id/et_origin_word_input"
+        app:layout_constraintLeft_toRightOf="@+id/et_origin_word_input"/>
+
+    <Button
         android:id="@+id/btn_add"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Add"
         app:layout_constraintBottom_toBottomOf="@id/et_translation_input"
+        app:layout_constraintStart_toEndOf="@id/et_translation_input"
         app:layout_constraintLeft_toRightOf="@id/et_translation_input"/>
 
     <TextView

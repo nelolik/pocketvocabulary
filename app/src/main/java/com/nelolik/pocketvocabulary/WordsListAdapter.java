@@ -2,7 +2,10 @@ package com.nelolik.pocketvocabulary;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -56,6 +59,7 @@ public class WordsListAdapter extends RecyclerView.Adapter<WordsListAdapter.Word
             wordViewHolder.mTranslation.setVisibility(View.VISIBLE);
             wordViewHolder.mTranslationInput.setVisibility(View.GONE);
             wordViewHolder.mNewWordInput.setVisibility(View.GONE);
+            wordViewHolder.mButtonTranslate.setVisibility(View.GONE);
             wordViewHolder.mButtonAdd.setVisibility(View.GONE);
             if (mCursor.moveToPosition(i - 1)) {
                 int indxWord = mCursor.getColumnIndex(TranslationsDBContract.COLUMN_ORIGIN);
@@ -70,6 +74,7 @@ public class WordsListAdapter extends RecyclerView.Adapter<WordsListAdapter.Word
             wordViewHolder.mTranslation.setVisibility(View.GONE);
             wordViewHolder.mTranslationInput.setVisibility(View.VISIBLE);
             wordViewHolder.mNewWordInput.setVisibility(View.VISIBLE);
+            wordViewHolder.mButtonTranslate.setVisibility(View.VISIBLE);
             wordViewHolder.mButtonAdd.setVisibility(View.VISIBLE);
         }
     }
@@ -88,14 +93,25 @@ public class WordsListAdapter extends RecyclerView.Adapter<WordsListAdapter.Word
         EditText mTranslationInput;
         TextView mOriginWord;
         TextView mTranslation;
+        Button mButtonTranslate;
         Button mButtonAdd;
 
-        WordViewHolder(@NonNull View itemView, boolean isFirst) {
+        WordViewHolder(@NonNull final View itemView, boolean isFirst) {
             super(itemView);
             mNewWordInput = itemView.findViewById(R.id.et_origin_word_input);
             mTranslationInput = itemView.findViewById(R.id.et_translation_input);
             mOriginWord = itemView.findViewById(R.id.tv_origin_word);
             mTranslation = itemView.findViewById(R.id.tv_translation);
+            mButtonTranslate = itemView.findViewById(R.id.btn_translate);
+            mButtonTranslate.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String text = mNewWordInput.getText().toString();
+                    if (!text.isEmpty()) {
+                        mListener.onButtonTranslate(text);
+                    }
+                }
+            });
             mButtonAdd = itemView.findViewById(R.id.btn_add);
             mButtonAdd.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -126,6 +142,7 @@ public class WordsListAdapter extends RecyclerView.Adapter<WordsListAdapter.Word
     }
 
     public interface OnButtonClickListener {
+        void onButtonTranslate(String text);
         void onButtonAddClick (String origin, String translation);
         void onOriginChanged(String new_origin);
     }

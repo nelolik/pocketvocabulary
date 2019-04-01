@@ -16,6 +16,7 @@ import com.nelolik.pocketvocabulary.dummy.DummyContent;
 
 public class MainActivity extends AppCompatActivity {
 
+    public static final String BACKSTACK_TAG = "TAG_BACKSTACK";
     private FrameLayout mFragmentLayout;
 
     @Override
@@ -30,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
         if (fragmentManager.getBackStackEntryCount() == 0) {
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             fragmentTransaction.add(R.id.main_fragment_container, new MainListFragment());
+            fragmentTransaction.addToBackStack(BACKSTACK_TAG);
             fragmentTransaction.commit();
         }
     }
