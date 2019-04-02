@@ -14,6 +14,9 @@ import android.widget.Toast;
 
 import com.nelolik.pocketvocabulary.Utility.YandexTranslate;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 
 import okhttp3.Call;
@@ -44,41 +47,67 @@ public class YandexTranslateFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        String text;
         Request request;
         Bundle arguments = getArguments();
-        if (arguments != null) {
-            if (arguments.containsKey("text")) {
-                text = getArguments().getString("text");
-                request = YandexTranslate.getQueryUrl(text);
-                OkHttpClient client = new OkHttpClient();
-                TextView textToTranslate = view.findViewById(R.id.text_to_translate);
-                textToTranslate.setText(text);
-                final TextView translatedText = view.findViewById(R.id.translated_text);
-                client.newCall(request).enqueue(new Callback() {
-                    @Override
-                    public void onFailure(Call call, IOException e) {
-                        call.cancel();
-                    }
+        requestToYandexTranslate(arguments, view);
 
+    }
+
+    private void requestToYandexTranslate(Bundle arguments, View view) {
+        if (arguments == null) {
+            return;
+        }
+        if (!arguments.containsKey("text")) {
+            return;
+        }
+        String text = getArguments().getString("text");
+        Request request = YandexTranslate.getQueryUrl(text);
+        OkHttpClient client = new OkHttpClient();
+        TextView textToTranslate = view.findViewById(R.id.text_to_translate);
+        textToTranslate.setText(text);
+        final TextView translationTextView = view.findViewById(R.id.translated_text);
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                call.cancel();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.code() != 200) {
+                    return;
+                }
+                final String translation = parseJSONfromResponse(response);
+                if (translation == null) {
+                    return;
+                }
+                Activity activity = getActivity();
+                if (activity == null) {
+                    return;
+                }
+                activity.runOnUiThread(new Runnable() {
                     @Override
-                    public void onResponse(Call call, Response response) throws IOException {
-                        final String textResponse = response.body().string();
-                        Activity activity = getActivity();
-                        int code = response.code();
-                        Toast.makeText(activity, "Response code: " + code, Toast.LENGTH_SHORT).show();
-                        if (activity != null) {
-                            activity.runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    translatedText.setText(textResponse);
-                                }
-                            });
-                        }
+                    public void run() {
+                        translationTextView.setText(translation);
                     }
                 });
             }
-        }
+        });
+    }
 
+    private String parseJSONfromResponse(Response response) {
+        try {
+            String textResponse = response.body().string();
+            JSONObject json = new JSONObject(textResponse);
+            String fromJson = json.getString("text");
+            if (fromJson.length() > 4) {
+                return fromJson.substring(2, fromJson.length() - 2);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }
