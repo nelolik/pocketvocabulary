@@ -26,4 +26,20 @@
         <item name="android:textSize">16sp</item>
     </style>
 
+    <style name="TextOriginYandexResponse" parent="TextOriginWord" >
+        <item name="android:textSize">24sp</item>
+        <item name="android:layout_marginStart">@dimen/text_margin</item>
+        <item name="android:layout_marginLeft">@dimen/text_margin</item>
+        <item name="android:layout_marginTop">@dimen/text_margin</item>
+        <item name="android:layout_marginBottom">@dimen/text_margin_top_bottom</item>
+    </style>
+
+    <style name="TextTranslationYandexResponse" parent="AppTheme">
+        <item name="android:textSize">24sp</item>
+        <item name="android:layout_marginStart">@dimen/text_margin</item>
+        <item name="android:layout_marginLeft">@dimen/text_margin</item>
+        <item name="android:layout_marginTop">@dimen/text_margin_top_bottom</item>
+        <item name="android:layout_marginBottom">@dimen/text_margin_top_bottom</item>
+    </style>
+
 </resources>

@@ -28,7 +28,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class MainListFragment extends Fragment
-        implements WordsListAdapter.OnButtonClickListener {
+        implements WordsListAdapter.OnButtonClickListener ,
+        YandexTranslateFragment.UserActionListener {
 
     private WordsListAdapter mListAdapter;
     private SQLiteDatabase mDb;
@@ -121,6 +122,7 @@ public class MainListFragment extends Fragment
         bundle.putString("text", text);
         YandexTranslateFragment yandexTranslateFragment = new YandexTranslateFragment();
         yandexTranslateFragment.setArguments(bundle);
+        yandexTranslateFragment.setUserActionListener(this);
         fragmentTransaction.replace(R.id.main_fragment_container, yandexTranslateFragment);
         fragmentTransaction.addToBackStack(MainActivity.BACKSTACK_TAG);
         fragmentTransaction.commit();
@@ -207,5 +209,10 @@ public class MainListFragment extends Fragment
                 TranslationsDBContract.COLUMN_ORIGIN + " =?",
                 new String[]{origin},
                 null, null,null);
+    }
+
+    @Override
+    public void onButtonAddWordListener(String origin, String translation) {
+        saveWordToDB(origin, translation);
     }
 }

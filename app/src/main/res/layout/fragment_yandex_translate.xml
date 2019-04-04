@@ -6,16 +6,31 @@
     android:orientation="vertical"
     tools:context=".YandexTranslateFragment">
 
-    <!-- TODO: Update blank fragment layout -->
     <TextView
         android:id="@+id/text_to_translate"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/hello_blank_fragment" />
+        style="@style/TextOriginYandexResponse"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="?android:attr/listDivider"
+        android:layout_marginStart="@dimen/padding_divider"
+        android:layout_marginLeft="@dimen/padding_divider"
+        android:layout_marginEnd="@dimen/padding_divider"
+        android:layout_marginRight="@dimen/padding_divider"/>
 
     <TextView
         android:id="@+id/translated_text"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        style="@style/TextTranslationYandexResponse"/>
+
+    <Button
+        android:id="@+id/save_translation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Save"/>
 
 </LinearLayout>

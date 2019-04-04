@@ -7,5 +7,4 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     app:layoutManager="LinearLayoutManager"
-    tools:context=".MainListFragment"
-    tools:listitem="@layout/fragment_item" />
+    tools:context=".MainListFragment"/>

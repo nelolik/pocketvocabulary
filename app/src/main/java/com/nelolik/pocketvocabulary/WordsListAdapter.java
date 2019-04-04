@@ -28,10 +28,10 @@ public class WordsListAdapter extends RecyclerView.Adapter<WordsListAdapter.Word
     private Cursor mCursor;
     private Context mContext;
     private OnButtonClickListener mListener;
+    private String mPreviousOrigString = "";
 
     WordsListAdapter(Context context, Cursor cursor, OnButtonClickListener listener) {
         mContext = context;
-//        mCursor = cursor;
         mCursor = cursor;
         mListener = listener;
     }
@@ -74,6 +74,8 @@ public class WordsListAdapter extends RecyclerView.Adapter<WordsListAdapter.Word
             wordViewHolder.mTranslation.setVisibility(View.GONE);
             wordViewHolder.mTranslationInput.setVisibility(View.VISIBLE);
             wordViewHolder.mNewWordInput.setVisibility(View.VISIBLE);
+            wordViewHolder.mNewWordInput.setText(mPreviousOrigString);
+            wordViewHolder.mNewWordInput.setSelection(mPreviousOrigString.length());
             wordViewHolder.mButtonTranslate.setVisibility(View.VISIBLE);
             wordViewHolder.mButtonAdd.setVisibility(View.VISIBLE);
         }
@@ -130,6 +132,10 @@ public class WordsListAdapter extends RecyclerView.Adapter<WordsListAdapter.Word
 
                 @Override
                 public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    if (mPreviousOrigString.contentEquals(s)) {
+                        return;
+                    }
+                    mPreviousOrigString = s.toString();
                     mListener.onOriginChanged(s.toString());
                 }
 

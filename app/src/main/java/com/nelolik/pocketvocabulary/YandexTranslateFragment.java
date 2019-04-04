@@ -6,9 +6,11 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,9 +33,14 @@ import okhttp3.Response;
  */
 public class YandexTranslateFragment extends Fragment {
 
+    private UserActionListener mListener = null;
 
     public YandexTranslateFragment() {
         // Required empty public constructor
+    }
+
+    void setUserActionListener (UserActionListener listener) {
+        mListener = listener;
     }
 
 
@@ -50,6 +57,19 @@ public class YandexTranslateFragment extends Fragment {
         Request request;
         Bundle arguments = getArguments();
         requestToYandexTranslate(arguments, view);
+        Button btnSave = view.findViewById(R.id.save_translation);
+        btnSave.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mListener != null) {
+                    TextView textToTranslate = view.findViewById(R.id.text_to_translate);
+                    TextView translationTextView = view.findViewById(R.id.translated_text);
+                    mListener.onButtonAddWordListener(textToTranslate.getText().toString(),
+                            translationTextView.getText().toString());
+                    getActivity().onBackPressed();
+                }
+            }
+        });
 
     }
 
@@ -109,5 +129,9 @@ public class YandexTranslateFragment extends Fragment {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public interface UserActionListener {
+        void onButtonAddWordListener (String origin, String translation);
     }
 }
