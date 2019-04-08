@@ -7,26 +7,35 @@
 
     <EditText
         android:id="@+id/et_origin_word_input"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_width="@dimen/new_word_edit_text"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"/>
+        android:layout_marginStart="@dimen/edit_text_margin"
+        android:layout_marginTop="@dimen/text_margin_top_bottom"
+        android:inputType="text"
+        app:layout_constraintEnd_toStartOf="@id/btn_translate"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/btn_translate"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
         android:id="@+id/et_translation_input"
-        android:layout_width="@dimen/new_word_edit_text"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/et_origin_word_input"
-        app:layout_constraintLeft_toLeftOf="parent"/>
+        android:layout_marginStart="@dimen/edit_text_margin"
+        android:inputType="text"
+        app:layout_constraintEnd_toStartOf="@id/btn_translate"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/btn_translate"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/et_origin_word_input" />
 
     <Button
         android:id="@+id/btn_translate"
         android:text="translate"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="@id/et_origin_word_input"
-        app:layout_constraintStart_toEndOf="@id/et_origin_word_input"
-        app:layout_constraintLeft_toRightOf="@+id/et_origin_word_input"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintRight_toRightOf="parent"/>
 
@@ -36,8 +45,8 @@
         android:layout_height="wrap_content"
         android:text="Add"
         app:layout_constraintBottom_toBottomOf="@id/et_translation_input"
-        app:layout_constraintStart_toEndOf="@id/et_translation_input"
-        app:layout_constraintLeft_toRightOf="@id/et_translation_input"
+        app:layout_constraintStart_toStartOf="@id/btn_translate"
+        app:layout_constraintLeft_toLeftOf="@id/btn_translate"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintRight_toRightOf="parent"/>
 
@@ -61,9 +70,11 @@
         style="@style/TextTranslationWord"
         android:layout_marginStart="@dimen/padding_text_in_view"
         android:layout_marginLeft="@dimen/padding_text_in_view"
+        android:layout_marginBottom="@dimen/text_margin_top_bottom"
         app:layout_constraintTop_toBottomOf="@id/tv_origin_word"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/item_divider"
         tools:text="translation"
         android:hint="translation"/>
 
@@ -76,7 +87,7 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_translation"
+        app:layout_constraintBottom_toBottomOf="parent"
         android:layout_marginStart="@dimen/padding_divider"
         android:layout_marginLeft="@dimen/padding_divider"
         android:layout_marginEnd="@dimen/padding_divider"

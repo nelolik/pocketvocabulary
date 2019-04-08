@@ -14,22 +14,31 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.nelolik.pocketvocabulary.Utility.TranslationsDBContract;
 import com.nelolik.pocketvocabulary.Utility.TranslationsDBHelper;
+import com.nelolik.pocketvocabulary.Utility.YandexTranslate;
 import com.nelolik.pocketvocabulary.dummy.DummyContent.DummyItem;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+
 public class MainListFragment extends Fragment
-        implements WordsListAdapter.OnButtonClickListener ,
-        YandexTranslateFragment.UserActionListener {
+        implements WordsListAdapter.OnButtonClickListener {
 
     private WordsListAdapter mListAdapter;
     private SQLiteDatabase mDb;
@@ -58,7 +67,7 @@ public class MainListFragment extends Fragment
             Context context = view.getContext();
             RecyclerView recyclerView = (RecyclerView) view;
             recyclerView.setLayoutManager(new LinearLayoutManager(context));
-            mListAdapter = new WordsListAdapter(getContext(), null, this);
+            mListAdapter = new WordsListAdapter(getContext(), null, getActivity(), this);
             recyclerView.setAdapter(mListAdapter);
         }
         mWorkingThread = new HandlerThread("BackgroundThread");
@@ -72,8 +81,8 @@ public class MainListFragment extends Fragment
     }
 
     @Override
-    public void onDetach() {
-        super.onDetach();
+    public void onStop() {
+        super.onStop();
     }
 
     @Override
@@ -83,9 +92,7 @@ public class MainListFragment extends Fragment
     }
 
     private void getDbCursor (final String like_arg) {
-        mThreadHandler.post(new Runnable() {
-            @Override
-            public void run() {
+        mThreadHandler.post(() -> {
                 String selection= null;
                 if (like_arg != null && !like_arg.isEmpty()) {
                     selection = TranslationsDBContract.COLUMN_ORIGIN + " LIKE \"" + like_arg + "%\"";
@@ -107,25 +114,7 @@ public class MainListFragment extends Fragment
                         }
                     });
                 }
-            }
-        });
-    }
-
-    @Override
-    public void onButtonTranslate(String text) {
-        FragmentManager fragmentManager = getFragmentManager();
-        if (fragmentManager == null) {
-            return;
-        }
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        Bundle bundle = new Bundle();
-        bundle.putString("text", text);
-        YandexTranslateFragment yandexTranslateFragment = new YandexTranslateFragment();
-        yandexTranslateFragment.setArguments(bundle);
-        yandexTranslateFragment.setUserActionListener(this);
-        fragmentTransaction.replace(R.id.main_fragment_container, yandexTranslateFragment);
-        fragmentTransaction.addToBackStack(MainActivity.BACKSTACK_TAG);
-        fragmentTransaction.commit();
+            });
     }
 
     @Override
@@ -159,9 +148,7 @@ public class MainListFragment extends Fragment
     }
 
     private void saveWordToDB(final String origin, final String translation) {
-        mThreadHandler.post(new Runnable() {
-            @Override
-            public void run() {
+        mThreadHandler.post(() -> {
                 ContentValues cv = new ContentValues();
                 Cursor cursor = queryFromDbByOrigin(origin);
                 if (cursor != null && cursor.getCount() > 0 && cursor.moveToFirst()) {
@@ -198,8 +185,7 @@ public class MainListFragment extends Fragment
                     }
                 }
                 getDbCursor(null);
-            }
-        });
+                });
 
     }
 
@@ -209,10 +195,5 @@ public class MainListFragment extends Fragment
                 TranslationsDBContract.COLUMN_ORIGIN + " =?",
                 new String[]{origin},
                 null, null,null);
-    }
-
-    @Override
-    public void onButtonAddWordListener(String origin, String translation) {
-        saveWordToDB(origin, translation);
     }
 }

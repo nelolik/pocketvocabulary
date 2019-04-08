@@ -1,5 +1,6 @@
 package com.nelolik.pocketvocabulary;
 
+import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -19,20 +20,32 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.nelolik.pocketvocabulary.Utility.TranslationsDBContract;
+import com.nelolik.pocketvocabulary.Utility.YandexTranslate;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class WordsListAdapter extends RecyclerView.Adapter<WordsListAdapter.WordViewHolder> {
 
     private Cursor mCursor;
     private Context mContext;
+    private Activity mActivity;
     private OnButtonClickListener mListener;
     private String mPreviousOrigString = "";
+    private String mTranslationText = "";
 
-    WordsListAdapter(Context context, Cursor cursor, OnButtonClickListener listener) {
+    WordsListAdapter(Context context, Cursor cursor,
+                     Activity activity, OnButtonClickListener listener) {
         mContext = context;
         mCursor = cursor;
+        mActivity = activity;
         mListener = listener;
     }
 
@@ -73,6 +86,7 @@ public class WordsListAdapter extends RecyclerView.Adapter<WordsListAdapter.Word
             wordViewHolder.mOriginWord.setVisibility(View.GONE);
             wordViewHolder.mTranslation.setVisibility(View.GONE);
             wordViewHolder.mTranslationInput.setVisibility(View.VISIBLE);
+            wordViewHolder.mTranslationInput.setText(mTranslationText);
             wordViewHolder.mNewWordInput.setVisibility(View.VISIBLE);
             wordViewHolder.mNewWordInput.setText(mPreviousOrigString);
             wordViewHolder.mNewWordInput.setSelection(mPreviousOrigString.length());
@@ -105,24 +119,14 @@ public class WordsListAdapter extends RecyclerView.Adapter<WordsListAdapter.Word
             mOriginWord = itemView.findViewById(R.id.tv_origin_word);
             mTranslation = itemView.findViewById(R.id.tv_translation);
             mButtonTranslate = itemView.findViewById(R.id.btn_translate);
-            mButtonTranslate.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    String text = mNewWordInput.getText().toString();
-                    if (!text.isEmpty()) {
-                        mListener.onButtonTranslate(text);
-                    }
-                }
-            });
+            mButtonTranslate.setOnClickListener((v) ->  onButtonTranslate());
             mButtonAdd = itemView.findViewById(R.id.btn_add);
-            mButtonAdd.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
+            mButtonAdd.setOnClickListener((v) -> {
                     mListener.onButtonAddClick(mNewWordInput.getText().toString(),
                             mTranslationInput.getText().toString());
                     mNewWordInput.setText("");
                     mTranslationInput.setText("");
-                }
+                    mTranslationText = "";
             });
             mNewWordInput.addTextChangedListener(new TextWatcher() {
                 @Override
@@ -136,6 +140,7 @@ public class WordsListAdapter extends RecyclerView.Adapter<WordsListAdapter.Word
                         return;
                     }
                     mPreviousOrigString = s.toString();
+                    mTranslationText = "";
                     mListener.onOriginChanged(s.toString());
                 }
 
@@ -145,10 +150,43 @@ public class WordsListAdapter extends RecyclerView.Adapter<WordsListAdapter.Word
                 }
             });
         }
+
+        private void onButtonTranslate() {
+            String text = mNewWordInput.getText().toString();
+            if (text.isEmpty()) {
+                return;
+            }
+            Request request = YandexTranslate.getQueryUrl(text);
+            if (request == null) {
+                return;
+            }
+            OkHttpClient client = new OkHttpClient();
+            client.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    call.cancel();
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    if (response.code() != 200) {
+                        Toast.makeText(mContext,
+                                "Response code from Yandex Translate: " + response.code(),
+                                Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    final String translation = YandexTranslate.parseJSONFromResponse(response);
+                    if (translation == null) {
+                        return;
+                    }
+                    mTranslationText = translation;
+                    mActivity.runOnUiThread(() -> { notifyDataSetChanged(); });
+                }
+            });
+        }
     }
 
     public interface OnButtonClickListener {
-        void onButtonTranslate(String text);
         void onButtonAddClick (String origin, String translation);
         void onOriginChanged(String new_origin);
     }

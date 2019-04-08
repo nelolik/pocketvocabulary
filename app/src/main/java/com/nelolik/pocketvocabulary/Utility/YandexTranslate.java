@@ -1,7 +1,13 @@
 package com.nelolik.pocketvocabulary.Utility;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+
 import okhttp3.HttpUrl;
 import okhttp3.Request;
+import okhttp3.Response;
 
 public class YandexTranslate {
 //    private static final String BASE_URL = "https://translate.yandex.net/api/v1.5/tr.json/translate";
@@ -34,5 +40,23 @@ public class YandexTranslate {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public static String parseJSONFromResponse(Response response) {
+        try {
+            String textResponse = response.body().string();
+            JSONObject json = new JSONObject(textResponse);
+            String fromJson = json.getString("text");
+            if (fromJson.length() > 4) {
+                return fromJson.substring(2, fromJson.length() - 2);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }
