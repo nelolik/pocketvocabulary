@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Pocket Vocabulary</string>
+    <string name="translation">перевод</string>
+    <string name="translate">перевести</string>
+    <string name="add">добавить</string>
+    <string name="action_settings">Настройки</string>
+    <string name="word">слово</string>
+</resources>
